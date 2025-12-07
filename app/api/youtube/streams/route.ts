@@ -21,10 +21,20 @@ export async function GET(request: Request) {
   const maxResultsParam = searchParams.get('maxResults') || '6';
   const maxResults = parseInt(maxResultsParam, 10);
 
+  console.log(
+    '📊 [API] Fetching streams from CONVEX DATABASE (zero YouTube quota used)'
+  );
+  const startTime = Date.now();
+
   try {
     const streams = await convex.query(api.streams.getStreams, {
       limit: Math.min(maxResults, 50),
     });
+
+    const queryTime = Date.now() - startTime;
+    console.log(
+      `✅ [API] Retrieved ${streams.length} streams from Convex in ${queryTime}ms`
+    );
 
     const videos: YouTubeVideo[] = streams.map((stream) => ({
       id: stream.videoId,
@@ -38,14 +48,30 @@ export async function GET(request: Request) {
 
     const lastSynced = streams.length > 0 ? streams[0].syncedAt : null;
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       videos,
-      lastSynced: lastSynced ? new Date(lastSynced).toISOString() : null,
+      metadata: {
+        source: 'CONVEX_DATABASE',
+        youtubeQuotaUsed: 0,
+        lastSynced: lastSynced ? new Date(lastSynced).toISOString() : null,
+        queryTime: `${queryTime}ms`,
+        totalStreams: streams.length,
+      },
     });
+
+    response.headers.set('X-Data-Source', 'Convex-Database');
+    response.headers.set('X-YouTube-Quota-Used', '0');
+    response.headers.set('X-Query-Time', `${queryTime}ms`);
+
+    return response;
   } catch (error) {
-    console.error('Error fetching streams from Convex:', error);
+    console.error('❌ [API] Error fetching streams from Convex:', error);
     return NextResponse.json(
-      { error: 'Error fetching streams', videos: [] },
+      {
+        error: 'Error fetching streams',
+        videos: [],
+        metadata: { source: 'ERROR' },
+      },
       { status: 500 }
     );
   }

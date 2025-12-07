@@ -3,41 +3,36 @@
 import { motion } from 'framer-motion';
 
 export default function ProfileLiveBorder() {
+  const borders = [
+    { color: '#8AB4F8', delay: 0 }, // Pastel Blue
+    { color: '#F28B82', delay: 0.5 }, // Pastel Red
+    { color: '#FDD663', delay: 1.0 }, // Pastel Yellow
+    { color: '#81C995', delay: 1.5 }, // Pastel Green
+  ];
+
   return (
     <>
-      <motion.div
-        className="absolute inset-[-6px] rounded-full z-0"
-        animate={{
-          rotate: 360,
-        }}
-        transition={{
-          duration: 3,
-          repeat: Infinity,
-          ease: 'linear',
-        }}
-        style={{
-          background:
-            'conic-gradient(from 0deg, #ff0000, #ff6b00, #ffff00, #00ff00, #0000ff, #8b00ff, #ff0000)',
-        }}
-      />
-
-      <motion.div
-        className="absolute inset-[-20px] rounded-full z-0"
-        animate={{
-          opacity: [0.4, 0.7, 0.4],
-          scale: [1, 1.15, 1],
-        }}
-        transition={{
-          duration: 2,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        }}
-        style={{
-          background:
-            'radial-gradient(circle, rgba(255, 0, 0, 0.5) 0%, rgba(255, 0, 0, 0) 70%)',
-          filter: 'blur(25px)',
-        }}
-      />
+      {borders.map((border, i) => (
+        <motion.div
+          key={i}
+          className="absolute z-0 border-[1.5px]"
+          style={{
+            borderColor: border.color,
+            inset: `-${(i + 1) * 5}px`, // -5px, -10px, -15px, -20px
+          }}
+          animate={{
+            borderRadius: ['50%', '35%', '45%', '30%', '50%'],
+            rotate: [0, 180, 360],
+          }}
+          transition={{
+            duration: 8,
+            ease: 'easeInOut',
+            repeat: Infinity,
+            delay: border.delay,
+            times: [0, 0.25, 0.5, 0.75, 1],
+          }}
+        />
+      ))}
     </>
   );
 }

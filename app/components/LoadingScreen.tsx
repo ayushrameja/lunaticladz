@@ -14,7 +14,7 @@ export default function LoadingScreen() {
       transition: {
         pathLength: {
           duration: 2,
-          ease: 'easeInOut',
+          ease: [0.42, 0, 0.58, 1],
         },
         opacity: {
           duration: 0.3,

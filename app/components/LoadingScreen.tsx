@@ -3,26 +3,6 @@
 import { motion } from 'framer-motion';
 
 export default function LoadingScreen() {
-  const pathVariants = {
-    hidden: {
-      pathLength: 0,
-      opacity: 0,
-    },
-    visible: {
-      pathLength: 1,
-      opacity: 1,
-      transition: {
-        pathLength: {
-          duration: 2,
-          ease: [0.42, 0, 0.58, 1],
-        },
-        opacity: {
-          duration: 0.3,
-        },
-      },
-    },
-  };
-
   return (
     <motion.div
       initial={{ opacity: 1 }}
@@ -57,9 +37,12 @@ export default function LoadingScreen() {
             stroke="url(#gradient)"
             strokeWidth="4"
             strokeLinecap="round"
-            variants={pathVariants}
-            initial="hidden"
-            animate="visible"
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ pathLength: 1, opacity: 1 }}
+            transition={{
+              pathLength: { duration: 2, type: 'tween' },
+              opacity: { duration: 0.3 },
+            }}
           />
           <defs>
             <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">

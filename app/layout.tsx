@@ -1,21 +1,19 @@
 import type { Metadata } from 'next';
-import { Inter_Tight, Pattaya } from 'next/font/google';
+import localFont from 'next/font/local';
 import './globals.css';
 import { LoadingProvider } from './components/LoadingProvider';
 import { ConvexClientProvider } from './components/ConvexClientProvider';
 
-const interTight = Inter_Tight({
-  variable: '--font-inter-tight',
-  subsets: ['latin'],
-  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
-  style: ['normal', 'italic'],
+const googleSans = localFont({
+  src: '../assets/GoogleSansFlex-VariableFont_GRAD,ROND,opsz,slnt,wdth,wght.ttf',
+  variable: '--font-google-sans',
+  display: 'swap',
 });
 
-const pattahya = Pattaya({
-  variable: '--font-pattaya',
-  subsets: ['latin'],
-  weight: ['400'],
-  style: ['normal'],
+const monas = localFont({
+  src: '../assets/MonasDemoRegular-eZl86.ttf',
+  variable: '--font-monas',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -29,9 +27,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${interTight.variable} ${pattahya.variable} antialiased`}
+        className={`${googleSans.variable} ${monas.variable} antialiased`}
+        suppressHydrationWarning
       >
         <ConvexClientProvider>
           <LoadingProvider>{children}</LoadingProvider>

@@ -56,14 +56,28 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const { isInitialLoading } = useLoading();
   const [currentThemeIndex, setCurrentThemeIndex] = useState(0);
+  const [backdropVisible, setBackdropVisible] = useState(true);
+  const [backdropThemeIndex, setBackdropThemeIndex] = useState(0);
   const currentTheme = THEMES[currentThemeIndex];
   const isLive = streams.some((stream) => stream.isLive);
 
   useEffect(() => {
     setMounted(true);
-    const interval = setInterval(() => {
-      setCurrentThemeIndex((prev) => (prev + 1) % THEMES.length);
-    }, 3000);
+
+    const runTransition = () => {
+      setBackdropVisible(false);
+
+      setTimeout(() => {
+        setCurrentThemeIndex((prev) => (prev + 1) % THEMES.length);
+        setBackdropThemeIndex((prev) => (prev + 1) % THEMES.length);
+
+        setTimeout(() => {
+          setBackdropVisible(true);
+        }, 900);
+      }, 500);
+    };
+
+    const interval = setInterval(runTransition, 6000);
     return () => clearInterval(interval);
   }, []);
 
@@ -103,12 +117,13 @@ export default function Home() {
   }, []);
 
   const baseDelay = 0.2;
+  const isReady = !isInitialLoading;
 
   return (
     <>
       <motion.div
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        animate={isReady ? { opacity: 1 } : { opacity: 0 }}
         transition={{ duration: 0.6, delay: baseDelay }}
         className={`min-h-screen flex flex-col bg-black text-white font-sans ${currentTheme.selection}`}
         suppressHydrationWarning
@@ -119,24 +134,21 @@ export default function Home() {
         >
           <div className="absolute inset-0 z-0">
             <div className="absolute inset-0 bg-linear-to-b from-black/40 to-black z-10" />
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentTheme.image}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.5 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 1 }}
-                className="absolute inset-0"
-              >
-                <Image
-                  src={currentTheme.image}
-                  alt="Background"
-                  fill
-                  className="object-cover blur-sm"
-                  priority
-                />
-              </motion.div>
-            </AnimatePresence>
+            <motion.div
+              key={THEMES[backdropThemeIndex].image}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: isReady && backdropVisible ? 0.5 : 0 }}
+              transition={{ duration: 0.5 }}
+              className="absolute inset-0"
+            >
+              <Image
+                src={THEMES[backdropThemeIndex].image}
+                alt="Background"
+                fill
+                className="object-cover blur-sm"
+                priority
+              />
+            </motion.div>
           </div>
           <div
             className="relative z-10 flex flex-col items-center text-center px-4 md:px-[75px] max-w-2xl mx-auto space-y-6"
@@ -144,13 +156,15 @@ export default function Home() {
           >
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
+              animate={
+                isReady ? { scale: 1, opacity: 1 } : { scale: 0.8, opacity: 0 }
+              }
               transition={{ duration: 0.6, delay: baseDelay + 0.2 }}
               className="relative w-48 h-48 md:w-40 md:h-40"
             >
               {isLive && <ProfileLiveBorder />}
               <div
-                className="relative z-10 w-full h-full rounded-full overflow-hidden bg-zinc-800"
+                className="relative z-10 w-full h-full rounded-full overflow-hidden bg-black"
                 suppressHydrationWarning
               >
                 <AnimatePresence mode="wait">
@@ -174,7 +188,7 @@ export default function Home() {
             </motion.div>
             <motion.h1
               initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
+              animate={isReady ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }}
               transition={{ duration: 0.6, delay: baseDelay + 0.4 }}
               className="text-4xl md:text-5xl font-monas text-white drop-shadow-lg tracking-tight"
             >
@@ -182,7 +196,7 @@ export default function Home() {
             </motion.h1>
             <motion.p
               initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
+              animate={isReady ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }}
               transition={{ duration: 0.6, delay: baseDelay + 0.6 }}
               className="text-lg md:text-xl text-gray-200 leading-relaxed font-light"
             >
@@ -192,7 +206,7 @@ export default function Home() {
 
             <motion.div
               initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
+              animate={isReady ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }}
               transition={{ duration: 0.6, delay: baseDelay + 0.8 }}
               className="flex items-center gap-8 text-sm md:text-base font-medium tracking-wide pt-2"
             >
@@ -271,7 +285,7 @@ export default function Home() {
 
         <motion.section
           initial={{ y: 50, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
+          animate={isReady ? { y: 0, opacity: 1 } : { y: 50, opacity: 0 }}
           transition={{ duration: 0.6, delay: baseDelay + 1.0 }}
           className={`relative z-20 rounded-t-3xl md:rounded-t-3xl px-4 md:px-[75px] py-8 md:py-12 -mt-10 flex-1 transition-colors duration-1000 ${currentTheme.sectionBg}`}
         >

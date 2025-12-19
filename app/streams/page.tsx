@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import StreamCard from '../components/StreamCard';
+import { useLoading } from '../components/LoadingProvider';
 
 interface Stream {
   id: string;
@@ -17,6 +18,7 @@ interface Stream {
 const ITEMS_PER_PAGE = 12;
 
 export default function StreamsPage() {
+  const { isInitialLoading } = useLoading();
   const [allStreams, setAllStreams] = useState<Stream[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -24,6 +26,9 @@ export default function StreamsPage() {
 
   useEffect(() => {
     async function fetchStreams() {
+      if (isInitialLoading) {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
       const startTime = Date.now();
       try {
         const response = await fetch('/api/youtube/streams?maxResults=50');
@@ -127,6 +132,7 @@ export default function StreamsPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: i * 0.05 }}
                     className="aspect-video bg-zinc-900 rounded-xl overflow-hidden"
+                    suppressHydrationWarning
                   >
                     <motion.div
                       animate={{
@@ -143,6 +149,7 @@ export default function StreamsPage() {
                           'linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent)',
                         backgroundSize: '200% 100%',
                       }}
+                      suppressHydrationWarning
                     />
                   </motion.div>
                 ))}
